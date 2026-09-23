@@ -91,7 +91,7 @@ The page is a full-width application surface with a fixed-height brand header, a
 7. **Expanded row:** retain the selected summary row above a pale detail region. Detail uses a four-column barrier-card grid on wide screens plus a right-hand context column separated by `1px solid #dfe6ed`. The seven cards are always in fixed barrier order and wrap to a second row. The context column contains Description, SSD, Remarks, and Audit trail.
 8. **Footer:** show range, Rows selector, and pagination. The prototype uses a 10-row page size and compact circular page controls.
 
-The supported responsive scope is desktop and tablet; phone is out of scope for v1. Use `1024px` as the tablet breakpoint: at widths below `1024px`, keep every table column at its desktop width and enable horizontal scrolling. Freeze the `WR#` and `ADDRESS / PROJECT` columns while the remaining columns scroll horizontally; frozen cells retain an opaque white or selected-row background and a right-edge separator so content cannot show through. Never stack or reflow rows. At tablet width, the expanded barrier grid changes from four columns to two columns; cards continue in fixed barrier order, and the context column moves below the barrier grid at full width.
+The supported responsive scope is desktop and tablet, with a minimum supported viewport width of `768px`; phone widths below `768px` are out of scope for v1. Use `1024px` as the tablet breakpoint: at widths below `1024px`, keep every table column at its desktop width and enable horizontal scrolling. Freeze the `WR#` and `ADDRESS / PROJECT` columns while the remaining columns scroll horizontally; frozen cells retain an opaque white or selected-row background and a right-edge separator so content cannot show through. Never stack or reflow rows. At tablet width, the expanded barrier grid changes from four columns to two columns; cards continue in fixed barrier order, and the context column moves below the barrier grid at full width.
 
 ## 4. Components
 
@@ -125,9 +125,19 @@ For a NOT READY row, show one blocker: `[Barrier] · [operator status word]` and
 
 ### Barrier card
 
-Expanded rows always show Locates, Staking, Permits, Gold Tape, Outage, SWO, and Material in that order. Cards are white, 6px radius, `#e4e8eb` top/right/bottom borders, a 3px state-colored left border, and `10px 12px 8px` padding. Header contains the barrier name and operator status word. Body is a two-column label/value list using 13px text, with a footer rule and source link.
+Expanded rows always show Locates, Staking, Permits, Gold Tape, Outage, SWO, and Material in that order. Cards are white, 6px radius, `#e4e8eb` top/right/bottom borders, and `10px 12px 8px` padding. In-progress and blocked cards use a 3px state-colored left border. Cleared cards keep the same size and position but use a muted grey border, so they recede through colour only. Header contains the barrier name and operator status word. The body is a two-column label/value list using 13px text, with a footer rule and a named source-system link followed by an external-link arrow: Locates → Sunshine 811; Staking → Design Manager; Permits → FDOT ePermits; Gold Tape → EO Registry; Outage → Outage Scheduler; SWO → Switching Manager; Material → SAP Material.
 
-In-progress and blocked cards may show Notify when a reachable person exists. Notify sends to one owner per barrier; multiple recipients are out of scope for v1. Cleared cards, N/A cards, Gold Tape, and on-hold barriers do not show Notify. N/A cards are greyed, show `Reason` and `Normally`, disable the source link, and have no notification action. Gold Tape links to the EO Registry and is never N/A. After notification, show `Notified just now · [name]` and a muted `Notify again` action.
+Cards use barrier-specific body fields and do not repeat the header's operator status word as a body field:
+
+- **Locates:** ticket #, provider, valid until.
+- **Staking:** staker, design file.
+- **Permits:** permit #, agency, contact.
+- **Gold Tape:** data source, last checked.
+- **Outage:** window, crew.
+- **SWO:** status, written, source, last checked.
+- **Material:** items, needed by, hold date.
+
+In-progress and blocked cards may show Notify when a reachable person exists. Notify sends to one owner per barrier; multiple recipients are out of scope for v1. Cleared cards, N/A cards, Gold Tape, and on-hold barriers do not show Notify. N/A cards are greyed, show exactly two body fields, `Reason` and `Normally`; `Normally` names what that barrier usually tracks, such as `Permit #, agency, contact`. N/A cards disable the source link and have no notification action. Gold Tape links to the EO Registry and is never N/A. After notification, show `Notified just now · [name]` and a muted `Notify again` action.
 
 ### Audit trail
 
