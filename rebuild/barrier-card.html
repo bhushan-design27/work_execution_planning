@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RTW Dashboard | Barrier card states</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-ink: #06303f;
+      --color-link: #016da4;
+      --color-brand: #045c86;
+      --color-action: #0096db;
+      --color-page: #f6f8fa;
+      --color-white: #ffffff;
+      --color-muted: #6b7279;
+      --color-body-muted: #4d545b;
+      --color-border: #c8d4df;
+      --color-rule: #e9eaeb;
+      --color-soft-rule: #dfe6ed;
+      --color-ready: #1c8d4f;
+      --color-ready-bg: #d7f3e2;
+      --color-ready-border: #ade6c4;
+      --color-ready-text: #125c34;
+      --color-progress: #c17d06;
+      --color-progress-text: #956000;
+      --color-blocked: #d6342a;
+      --color-blocked-bg: #fde1df;
+      --color-blocked-border: #fbc5c1;
+      --color-blocked-text: #81211d;
+      --color-na: #c8d0d8;
+      --color-hold-bg: #eef1f4;
+      --color-hold-border: #d3dbe3;
+      --color-overlay: #06303f40;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-width: 1024px;
+      margin: 0;
+      background: var(--color-page);
+      color: var(--color-ink);
+      font-family: Barlow, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 14px;
+    }
+
+    main {
+      max-width: 1720px;
+      margin: 0 auto;
+      padding: 30px 24px 38px;
+    }
+
+    .page-heading {
+      margin: 0 0 8px;
+      font-family: "Barlow Condensed", Barlow, sans-serif;
+      font-size: 32px;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .page-intro {
+      margin: 0 0 24px;
+      color: var(--color-body-muted);
+      font-size: 16px;
+      line-height: 20px;
+    }
+
+    .comparison {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(220px, 1fr));
+      gap: 14px;
+      align-items: start;
+    }
+
+    .state {
+      min-width: 0;
+    }
+
+    .state-label {
+      min-height: 32px;
+      margin: 0 0 8px;
+      color: var(--color-muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      line-height: 14px;
+      text-transform: uppercase;
+    }
+
+    .barrier-card {
+      display: flex;
+      min-height: 320px;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--color-soft-rule);
+      border-left: 3px solid var(--state-color);
+      border-radius: 6px;
+      background: var(--color-white);
+      padding: 10px 12px 8px;
+    }
+
+    .barrier-card.is-na {
+      background: #fbfcfd;
+      color: var(--color-muted);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 42px;
+    }
+
+    .barrier-name {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 20px;
+    }
+
+    .state-word {
+      display: inline-flex;
+      align-items: center;
+      min-height: 20px;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      padding: 0 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      line-height: 20px;
+      text-transform: uppercase;
+    }
+
+    .state-word.progress {
+      background: #fff5dc;
+      color: var(--color-progress-text);
+    }
+
+    .state-word.blocked {
+      border: 1px solid var(--color-blocked-border);
+      background: var(--color-blocked-bg);
+      color: var(--color-blocked-text);
+    }
+
+    .state-word.cleared {
+      border: 1px solid var(--color-ready-border);
+      background: var(--color-ready-bg);
+      color: var(--color-ready-text);
+    }
+
+    .state-word.na {
+      border: 1px solid var(--color-hold-border);
+      background: var(--color-hold-bg);
+      color: var(--color-muted);
+    }
+
+    .detail-list {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+      gap: 5px 10px;
+      margin: 10px 0 0;
+      font-size: 13px;
+      line-height: 16px;
+    }
+
+    .detail-list dt {
+      color: var(--color-muted);
+    }
+
+    .detail-list dd {
+      min-width: 0;
+      margin: 0;
+      overflow-wrap: anywhere;
+      font-weight: 500;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 36px;
+      margin-top: auto;
+      border-top: 1px solid var(--color-rule);
+      padding-top: 8px;
+      font-size: 13px;
+      line-height: 16px;
+    }
+
+    .source-link {
+      color: var(--color-link);
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .source-link[aria-disabled="true"] {
+      color: var(--color-muted);
+      cursor: not-allowed;
+      pointer-events: none;
+      text-decoration: none;
+    }
+
+    .notify-button,
+    .notify-again {
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .notify-button {
+      color: var(--color-link);
+    }
+
+    .notify-again {
+      color: var(--color-muted);
+      font-size: 13px;
+    }
+
+    button:focus-visible,
+    a:focus-visible {
+      outline: 2px solid var(--color-action);
+      outline-offset: 2px;
+    }
+
+    .notify-status {
+      margin: 8px 0 0;
+      color: var(--color-muted);
+      font-size: 13px;
+      line-height: 16px;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 11px;
+      height: 11px;
+      margin-right: 5px;
+      border: 1.5px solid var(--state-color);
+      border-radius: 50%;
+      vertical-align: -1px;
+    }
+
+    .dot.progress {
+      background: var(--color-progress);
+    }
+
+    .dot.blocked {
+      background: var(--color-blocked);
+    }
+
+    .dot.cleared {
+      background: var(--color-ready);
+    }
+
+    .dot.na {
+      border-color: var(--color-na);
+      background: transparent;
+    }
+
+    @media (max-width: 1280px) {
+      main {
+        padding-right: 16px;
+        padding-left: 16px;
+      }
+
+      .comparison {
+        gap: 10px;
+      }
+
+      .barrier-card {
+        padding-right: 10px;
+        padding-left: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1 class="page-heading">Barrier card states</h1>
+    <p class="page-intro">Locates shown across the operational states defined for a work request.</p>
+
+    <!-- The spec does not define exact demonstration field values or source URLs, so the values below are illustrative. -->
+    <section class="comparison" aria-label="Barrier card state comparison">
+      <article class="state">
+        <h2 class="state-label">In progress</h2>
+        <section class="barrier-card" style="--state-color: var(--color-progress);" aria-labelledby="progress-title">
+          <header class="card-header">
+            <h3 class="barrier-name" id="progress-title"><span class="dot progress" aria-hidden="true"></span>Locates</h3>
+            <span class="state-word progress">Scheduled</span>
+          </header>
+          <dl class="detail-list">
+            <dt>Status</dt>
+            <dd>Scheduled</dd>
+            <dt>Owner</dt>
+            <dd>Grid Services</dd>
+            <dt>Updated</dt>
+            <dd>Source feed</dd>
+          </dl>
+          <footer class="card-footer">
+            <a class="source-link" href="#progress-source">Open source</a>
+            <button class="notify-button" type="button">Notify</button>
+          </footer>
+        </section>
+      </article>
+
+      <article class="state">
+        <h2 class="state-label">Blocked</h2>
+        <section class="barrier-card" style="--state-color: var(--color-blocked);" aria-labelledby="blocked-title">
+          <header class="card-header">
+            <h3 class="barrier-name" id="blocked-title"><span class="dot blocked" aria-hidden="true"></span>Locates</h3>
+            <span class="state-word blocked">Rejected</span>
+          </header>
+          <dl class="detail-list">
+            <dt>Status</dt>
+            <dd>Rejected</dd>
+            <dt>Owner</dt>
+            <dd>Alex Morgan</dd>
+            <dt>Updated</dt>
+            <dd>Source feed</dd>
+          </dl>
+          <footer class="card-footer">
+            <a class="source-link" href="#blocked-source">Open source</a>
+            <button class="notify-button" type="button">Notify</button>
+          </footer>
+        </section>
+      </article>
+
+      <article class="state">
+        <h2 class="state-label">Cleared</h2>
+        <section class="barrier-card" style="--state-color: var(--color-ready);" aria-labelledby="cleared-title">
+          <header class="card-header">
+            <h3 class="barrier-name" id="cleared-title"><span class="dot cleared" aria-hidden="true"></span>Locates</h3>
+            <span class="state-word cleared">Complete</span>
+          </header>
+          <dl class="detail-list">
+            <dt>Status</dt>
+            <dd>Complete</dd>
+            <dt>Owner</dt>
+            <dd>Grid Services</dd>
+            <dt>Updated</dt>
+            <dd>Source feed</dd>
+          </dl>
+          <footer class="card-footer">
+            <a class="source-link" href="#cleared-source">Open source</a>
+            <span aria-hidden="true">&mdash;</span>
+          </footer>
+        </section>
+      </article>
+
+      <article class="state">
+        <h2 class="state-label">N/A</h2>
+        <section class="barrier-card is-na" style="--state-color: var(--color-na);" aria-labelledby="na-title">
+          <header class="card-header">
+            <h3 class="barrier-name" id="na-title"><span class="dot na" aria-hidden="true"></span>Locates</h3>
+            <span class="state-word na">N/A</span>
+          </header>
+          <dl class="detail-list">
+            <dt>Reason</dt>
+            <dd>Work-type rule</dd>
+            <dt>Normally</dt>
+            <dd>Not required</dd>
+            <dt>Notify</dt>
+            <dd>Not available</dd>
+          </dl>
+          <footer class="card-footer">
+            <a class="source-link" href="#na-source" aria-disabled="true" tabindex="-1">Open source</a>
+            <span aria-hidden="true">&mdash;</span>
+          </footer>
+        </section>
+      </article>
+
+      <article class="state">
+        <h2 class="state-label">After notify</h2>
+        <section class="barrier-card" style="--state-color: var(--color-blocked);" aria-labelledby="notified-title">
+          <header class="card-header">
+            <h3 class="barrier-name" id="notified-title"><span class="dot blocked" aria-hidden="true"></span>Locates</h3>
+            <span class="state-word blocked">Rejected</span>
+          </header>
+          <dl class="detail-list">
+            <dt>Status</dt>
+            <dd>Rejected</dd>
+            <dt>Owner</dt>
+            <dd>Alex Morgan</dd>
+            <dt>Updated</dt>
+            <dd>Source feed</dd>
+          </dl>
+          <p class="notify-status">Notified just now &middot; Alex Morgan</p>
+          <footer class="card-footer">
+            <a class="source-link" href="#notified-source">Open source</a>
+            <button class="notify-again" type="button">Notify again</button>
+          </footer>
+        </section>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
