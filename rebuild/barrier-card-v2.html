@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RTW Dashboard — Barrier Card States</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700&display=swap');
+
+      :root {
+        --color-ink: #06303f;
+        --color-link: #016da4;
+        --color-brand: #045c86;
+        --color-action: #0096db;
+        --color-page: #f6f8fa;
+        --color-white: #ffffff;
+        --color-muted: #6b7279;
+        --color-body-muted: #4d545b;
+        --color-border: #c8d4df;
+        --color-rule: #e9eaeb;
+        --color-soft-rule: #dfe6ed;
+        --color-ready: #1c8d4f;
+        --color-ready-bg: #d7f3e2;
+        --color-ready-border: #ade6c4;
+        --color-ready-text: #125c34;
+        --color-progress: #c17d06;
+        --color-progress-text: #956000;
+        --color-blocked: #d6342a;
+        --color-blocked-bg: #fde1df;
+        --color-blocked-border: #fbc5c1;
+        --color-blocked-text: #81211d;
+        --color-na: #c8d0d8;
+        --color-hold-bg: #eef1f4;
+        --color-hold-border: #d3dbe3;
+        --color-overlay: #06303f40;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        background: var(--color-page);
+        color: var(--color-ink);
+        font-family: "Barlow", -apple-system, BlinkMacSystemFont, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .page {
+        padding: 32px 20px;
+      }
+
+      .title {
+        margin: 0 0 20px;
+        font-size: 21px;
+        line-height: 1.2;
+        font-weight: 600;
+        color: var(--color-ink);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(190px, 1fr));
+        gap: 16px;
+        align-items: start;
+      }
+
+      .card {
+        background: var(--color-white);
+        border: 1px solid var(--color-soft-rule);
+        border-radius: 6px;
+        overflow: hidden;
+        min-height: 310px;
+      }
+
+      .card.is-in-progress { border-left: 3px solid var(--color-progress); }
+      .card.is-blocked { border-left: 3px solid var(--color-blocked); }
+      .card.is-cleared { border-left: 1px solid var(--color-soft-rule); }
+      .card.is-na { border-left: 1px solid var(--color-border); background: #f6f7f8; }
+      .card.is-notified { border-left: 3px solid var(--color-progress); }
+
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px 8px;
+        border-bottom: 1px solid var(--color-rule);
+        background: var(--color-white);
+      }
+
+      .label-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+      }
+
+      .dot {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        flex: 0 0 auto;
+        border: 1.5px solid var(--color-border);
+      }
+
+      .dot.ready { background: var(--color-ready); }
+      .dot.progress { background: var(--color-progress); }
+      .dot.blocked { background: var(--color-blocked); }
+      .dot.na { background: var(--color-white); border-color: var(--color-border); }
+
+      .name {
+        font-size: 13px;
+        line-height: 1.2;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--color-ink);
+      }
+
+      .status {
+        font-size: 11px;
+        line-height: 1.2;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .status.ready { color: var(--color-ready-text); }
+      .status.progress { color: var(--color-progress-text); }
+      .status.blocked { color: var(--color-blocked-text); }
+      .status.na { color: var(--color-muted); }
+
+      .media {
+        padding: 10px 12px 8px;
+      }
+
+      .pair {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 8px 10px;
+        align-items: start;
+      }
+
+      .meta {
+        min-width: 0;
+      }
+
+      .meta .label {
+        display: block;
+        font-size: 11px;
+        line-height: 1.35;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--color-muted);
+        margin-bottom: 2px;
+      }
+
+      .meta .value {
+        display: block;
+        font-size: 13px;
+        line-height: 1.4;
+        color: var(--color-ink);
+        word-break: break-word;
+      }
+
+      .meta .value.link {
+        color: var(--color-link);
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .source {
+        margin-top: 12px;
+        padding-top: 8px;
+        border-top: 1px solid var(--color-rule);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 12px;
+        line-height: 1.4;
+        color: var(--color-muted);
+      }
+
+      .source a {
+        color: var(--color-link);
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .source .arrow {
+        color: var(--color-link);
+        font-weight: 700;
+      }
+
+      .source.is-disabled {
+        color: var(--color-border);
+        pointer-events: none;
+      }
+
+      .source.is-disabled a {
+        color: var(--color-border);
+      }
+
+      .actions {
+        padding: 8px 12px 12px;
+      }
+
+      .notify-box {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .status-line {
+        font-size: 12px;
+        line-height: 1.35;
+        color: var(--color-muted);
+      }
+
+      .notify-button,
+      .notify-again {
+        appearance: none;
+        border: 0;
+        background: transparent;
+        padding: 0;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+        color: var(--color-link);
+        font-weight: 600;
+      }
+
+      .notify-again {
+        color: var(--color-muted);
+        text-decoration: underline;
+      }
+
+      .card.is-na .media,
+      .card.is-na .actions {
+        background: #f3f5f6;
+      }
+
+      .card.is-cleared .header,
+      .card.is-cleared .media,
+      .card.is-cleared .actions {
+        background: var(--color-white);
+      }
+
+      .card.is-cleared .dot {
+        background: var(--color-ready);
+        border-color: var(--color-ready-border);
+      }
+
+      .card.is-cleared .status {
+        color: var(--color-ready-text);
+      }
+
+      .card.is-na .dot {
+        background: var(--color-white);
+        border-color: var(--color-border);
+      }
+
+      .card.is-na .status {
+        color: var(--color-muted);
+      }
+
+      .card.is-na .pair {
+        grid-template-columns: 1fr;
+      }
+
+      .card.is-na .meta:first-child {
+        margin-bottom: 4px;
+      }
+
+      .card.is-na .source {
+        border-top-color: var(--color-soft-rule);
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <!-- Missing from DESIGN.md: no exact desktop card width or final notification-copy wording beyond the required “Notified just now · [name]” and “Notify again” behaviour; the card below follows the documented tokens, spacing, and barrier-card rules only. -->
+      <h1 class="title">Barrier card states · Permits</h1>
+
+      <div class="grid" aria-label="Permits barrier states side by side">
+        <article class="card is-in-progress" aria-label="Permits in progress">
+          <div class="header">
+            <div class="label-wrap">
+              <span class="dot progress" aria-hidden="true"></span>
+              <span class="name">Permits</span>
+            </div>
+            <span class="status progress">Pending</span>
+          </div>
+
+          <div class="media">
+            <div class="pair">
+              <div class="meta">
+                <span class="label">Permit #</span>
+                <span class="value">PR-28491</span>
+              </div>
+              <div class="meta">
+                <span class="label">Agency</span>
+                <span class="value">FDOT</span>
+              </div>
+              <div class="meta" style="grid-column: 1 / -1;">
+                <span class="label">Contact</span>
+                <span class="value">Mercy Ortiz</span>
+              </div>
+            </div>
+
+            <div class="source" aria-label="Source system link for permits">
+              <span>Source:</span>
+              <a href="#" aria-label="Open FDOT ePermits">FDOT ePermits</a>
+              <span class="arrow" aria-hidden="true">↗</span>
+            </div>
+          </div>
+
+          <div class="actions">
+            <div class="notify-box">
+              <button class="notify-button" type="button" aria-label="Notify owner for Permits">Notify</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="card is-blocked" aria-label="Permits blocked">
+          <div class="header">
+            <div class="label-wrap">
+              <span class="dot blocked" aria-hidden="true"></span>
+              <span class="name">Permits</span>
+            </div>
+            <span class="status blocked">Rejected</span>
+          </div>
+
+          <div class="media">
+            <div class="pair">
+              <div class="meta">
+                <span class="label">Permit #</span>
+                <span class="value">PR-28491</span>
+              </div>
+              <div class="meta">
+                <span class="label">Agency</span>
+                <span class="value">FDOT</span>
+              </div>
+              <div class="meta" style="grid-column: 1 / -1;">
+                <span class="label">Contact</span>
+                <span class="value">Mercy Ortiz</span>
+              </div>
+            </div>
+
+            <div class="source" aria-label="Source system link for permits">
+              <span>Source:</span>
+              <a href="#" aria-label="Open FDOT ePermits">FDOT ePermits</a>
+              <span class="arrow" aria-hidden="true">↗</span>
+            </div>
+          </div>
+
+          <div class="actions">
+            <div class="notify-box">
+              <button class="notify-button" type="button" aria-label="Notify owner for Permits">Notify</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="card is-cleared" aria-label="Permits cleared">
+          <div class="header">
+            <div class="label-wrap">
+              <span class="dot ready" aria-hidden="true"></span>
+              <span class="name">Permits</span>
+            </div>
+            <span class="status ready">Approved</span>
+          </div>
+
+          <div class="media">
+            <div class="pair">
+              <div class="meta">
+                <span class="label">Permit #</span>
+                <span class="value">PR-28491</span>
+              </div>
+              <div class="meta">
+                <span class="label">Agency</span>
+                <span class="value">FDOT</span>
+              </div>
+              <div class="meta" style="grid-column: 1 / -1;">
+                <span class="label">Contact</span>
+                <span class="value">Mercy Ortiz</span>
+              </div>
+            </div>
+
+            <div class="source" aria-label="Source system link for permits">
+              <span>Source:</span>
+              <a href="#" aria-label="Open FDOT ePermits">FDOT ePermits</a>
+              <span class="arrow" aria-hidden="true">↗</span>
+            </div>
+          </div>
+
+          <div class="actions" aria-hidden="true">
+            <span class="sr-only">No notify action for cleared barrier</span>
+          </div>
+        </article>
+
+        <article class="card is-na" aria-label="Permits not available">
+          <div class="header">
+            <div class="label-wrap">
+              <span class="dot na" aria-hidden="true"></span>
+              <span class="name">Permits</span>
+            </div>
+            <span class="status na">N/A</span>
+          </div>
+
+          <div class="media">
+            <div class="pair">
+              <div class="meta">
+                <span class="label">Reason</span>
+                <span class="value">Not required for this work type</span>
+              </div>
+              <div class="meta">
+                <span class="label">Normally</span>
+                <span class="value">Permit #, agency, contact</span>
+              </div>
+            </div>
+
+            <div class="source is-disabled" aria-label="Source link disabled for N/A Permits">
+              <span>Source:</span>
+              <a href="#" aria-label="Disabled FDOT ePermits">FDOT ePermits</a>
+              <span class="arrow" aria-hidden="true">↗</span>
+            </div>
+          </div>
+
+          <div class="actions" aria-hidden="true">
+            <span class="sr-only">No notify action for N/A barrier</span>
+          </div>
+        </article>
+
+        <article class="card is-notified" aria-label="Permits after notify">
+          <div class="header">
+            <div class="label-wrap">
+              <span class="dot progress" aria-hidden="true"></span>
+              <span class="name">Permits</span>
+            </div>
+            <span class="status progress">Pending</span>
+          </div>
+
+          <div class="media">
+            <div class="pair">
+              <div class="meta">
+                <span class="label">Permit #</span>
+                <span class="value">PR-28491</span>
+              </div>
+              <div class="meta">
+                <span class="label">Agency</span>
+                <span class="value">FDOT</span>
+              </div>
+              <div class="meta" style="grid-column: 1 / -1;">
+                <span class="label">Contact</span>
+                <span class="value">Mercy Ortiz</span>
+              </div>
+            </div>
+
+            <div class="source" aria-label="Source system link for permits">
+              <span>Source:</span>
+              <a href="#" aria-label="Open FDOT ePermits">FDOT ePermits</a>
+              <span class="arrow" aria-hidden="true">↗</span>
+            </div>
+          </div>
+
+          <div class="actions">
+            <div class="notify-box">
+              <span class="status-line">Notified just now · Mercy Ortiz</span>
+              <button class="notify-again" type="button" aria-label="Notify again for Permits">Notify again</button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </body>
+</html>
